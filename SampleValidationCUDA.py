@@ -16,7 +16,7 @@ class SampleValidationCUDA:
         __global__ void validate_segment(float *q_start, float *q_end, float *result, float step_size, int num_segs) {
             extern __shared__ int shared_result;
             shared_result = 1;
-            result[0] = 0;
+            result[0] = True;
         }
         """
 
@@ -103,7 +103,7 @@ class SampleValidationCUDA:
 
         # Copy result back
         result = np.array([True], dtype=np.bool_)
-        result[0] = 1
+        result[0] = False
         cuda.memcpy_dtoh(result, result_gpu)
 
         # Clean up
