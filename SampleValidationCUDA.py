@@ -34,7 +34,7 @@ class SampleValidationCUDA:
         __global__ void validate_segment(float *q_start, float *q_end, bool *result, float step_size, int num_segs) {
             extern __shared__ int shared_result;
             int idx = blockIdx.x * blockDim.x + threadIdx.x;
-            if (idx < num_segs && shared_result == true) {
+            if (idx < num_segs && shared_result == 0) {
                 float t = (float)idx / (num_segs - 1);
                 float q_seg[3];
                 for (int i = 0; i < 3; ++i) {
