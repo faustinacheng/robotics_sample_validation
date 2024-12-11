@@ -15,8 +15,7 @@ class SampleValidationCUDA:
         self.cuda_kernel_code = """
         #include <curand_kernel.h>
 
-        __device__ float* step(float *q_near, float *q_rand, int num_elements, float step_size, float *steps) {
-            float direction[num_elements];
+        __device__ float* step(float *q_near, float *q_rand, int num_elements, float step_size, float *direction, float *steps) {
             float length = 0.0f;
 
             for (int i = 0; i < num_elements; ++i) {
@@ -30,7 +29,7 @@ class SampleValidationCUDA:
 
             for (int i = 0; i < num_elements; ++i) {
                 steps[i] = q_near[i] + (direction[i] / length) * step_size;
-                steps[i] = fmaxf(fminf(q_step[i], M_PI), -M_PI);
+                steps[i] = fmaxf(fminf(steps[i], M_PI), -M_PI);
             }
             return steps;
         }
@@ -46,7 +45,7 @@ class SampleValidationCUDA:
         }
 
         extern "C" {
-        __global__ void validate_segment(int start_index, int end_index, float *q_start, float *q_end, bool *result, float step_size, int num_segs, int num_elements) {
+        __global__ void validate_segment(int start_index, int end_index, float *q_start, float *q_end, float *direction, float *steps, bool *result, float step_size, int num_segs, int num_elements) {
             extern __shared__ int shared_result[];
             int idx = blockIdx.x * blockDim.x + threadIdx.x;
             if (threadIdx.x == 0) {
@@ -57,7 +56,7 @@ class SampleValidationCUDA:
                 float q_seg[num_elements];
                 float *res;
                 for (int i = start_index; i < end_index; ++i) {
-                    res = step(q_start, q_end, num_elements, i * step_size, q_seg);
+                    res = step(q_start, q_end, num_elements, i * step_size, direction, steps);
                     if (!is_state_valid_cuda(res)) {
                         //printf("Invalid segment at %d\\n", idx);
                         shared_result[0] = 1;  // Mark as invalid
@@ -130,6 +129,8 @@ class SampleValidationCUDA:
         q_start_np = np.array(q_start, dtype=np.float32)
         q_end_np = np.array(q_end, dtype=np.float32)
         q_result_np = np.array([True], dtype=np.bool_)
+        direction_np = np.array([0] * len(q_start), dtype=np.float32)
+        steps_np = np.array([0] * len(q_start), dtype=np.float32)
 
         # Prepare data for GPU
         # q_start_gpu = cuda.mem_alloc(q_start_np.nbytes)
@@ -146,6 +147,8 @@ class SampleValidationCUDA:
         self.validate_segment_kernel(
             cuda.In(q_start_np),
             cuda.In(q_end_np),
+            cuda.In(direction_np),
+            cuda.In(steps_np),
             cuda.Out(q_result_np),
             np.float32(step_size),
             np.int32(num_segs),
