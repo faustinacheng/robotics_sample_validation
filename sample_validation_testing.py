@@ -33,11 +33,14 @@ with open("sample_validation_testing_output.txt", "w", newline="") as f:
                 invalids = valids = 0
 
                 start_time = time.time()
+                i = 0
                 valid = False
                 while not valid:
                     q_start = trajectory_sample(seed1)
                     q_end = trajectory_sample(seed1)
-                    print(f"q_start: {q_start}, q_end: {q_end}")
+                    if i == 0:
+                        print(f"q_start: {q_start}, q_end: {q_end}")
+                        i += 1
                     valid = module.is_segment_valid(q_start, q_end)
                     # if module == cuda:
                     #     print(valid)
