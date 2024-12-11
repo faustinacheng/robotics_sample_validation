@@ -54,8 +54,8 @@ class SampleValidationCUDA:
             __syncthreads();
             if (idx < num_segs && shared_result[0] == 0) {
                 float *res;
-                float q_seg[6];
                 for (int i = idx; i < num_segs + 1; i += blockDim.x * gridDim.x) {
+                    float q_seg[6];
                     float t = (float)i / num_segs;
                     for (int j = 0; j < num_elements; ++j) {
                         q_seg[j] = q_start[j] + t * (q_end[j] - q_start[j]);
