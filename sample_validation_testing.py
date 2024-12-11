@@ -16,8 +16,8 @@ cuda = SampleValidationCUDA()
 modules = [serial, multithreads, cuda]
 
 
-def trajectory_sample():
-    q_rand = [random.uniform(-math.pi, math.pi) for _ in range(num_joints)]
+def trajectory_sample(seed):
+    q_rand = [seed.uniform(-math.pi, math.pi) for _ in range(num_joints)]
     return q_rand
 
 
@@ -27,16 +27,16 @@ with open("sample_validation_testing_output.txt", "w", newline="") as f:
     for i in range(int(sys.argv[2])):
         for module in modules:
             print("-" * 50)
+            seed1 = random.Random(0xDEADBEEF)
             for obstacle in current_obstacles:
-                random.seed(time.time())
                 module.current_obstacle = obstacle
                 invalids = valids = 0
 
                 start_time = time.time()
                 valid = False
                 while not valid:
-                    q_start = trajectory_sample()
-                    q_end = trajectory_sample()
+                    q_start = trajectory_sample(seed1)
+                    q_end = trajectory_sample(seed1)
                     valid = module.is_segment_valid(q_start, q_end)
                     # if module == cuda:
                     #     print(valid)
