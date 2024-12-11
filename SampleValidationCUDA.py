@@ -30,7 +30,7 @@ class SampleValidationCUDA:
 
             for (int i = 0; i < num_elements; ++i) {
                 steps[i] = q_near[i] + (direction[i] / length) * step_size;
-                q_step[i] = fmaxf(fminf(q_step[i], M_PI), -M_PI);
+                steps[i] = fmaxf(fminf(q_step[i], M_PI), -M_PI);
             }
             return steps;
         }
@@ -54,11 +54,11 @@ class SampleValidationCUDA:
             }
             __syncthreads();
             if (idx < num_segs && shared_result[0] == 0) {
-                float[num_elements] steps;
-                float q_seg;
+                float q_seg[num_elements];
+                float *res;
                 for (int i = start_index; i < end_index; ++i) {
-                    q_seg = step(q_start, q_end, num_elements, t * step_size, steps);
-                    if (!is_state_valid_cuda(q_seg)) {
+                    res = step(q_start, q_end, num_elements, i * step_size, q_seg);
+                    if (!is_state_valid_cuda(res)) {
                         //printf("Invalid segment at %d\\n", idx);
                         shared_result[0] = 1;  // Mark as invalid
                         result[0] = false;
