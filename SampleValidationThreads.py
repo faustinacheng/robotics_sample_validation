@@ -9,7 +9,7 @@ class SampleValidationThreads:
     def __init__(self):
         self.NUM_THREADS = 2
         self.current_obstacle = "NONE"
-        random.seed(time.time())
+        random.seed(time.time() + 0xBEEFBEEF)
 
     def is_state_valid(self, q_seg):
         return random.random() > 0.015

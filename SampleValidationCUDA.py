@@ -150,7 +150,7 @@ class SampleValidationCUDA:
         # blockspergrid = (num_segs + threadsperblock - 1) // threadsperblock
         blockspergrid = 1
         segments_per_thread = math.ceil(num_segs / (threadsperblock * blockspergrid))
-        print(f"num_segs: {num_segs}, segments_per_thread: {segments_per_thread}")
+        # print(f"num_segs: {num_segs}, segments_per_thread: {segments_per_thread}")
         self.validate_segment_kernel(
             cuda.In(q_start_np),
             cuda.In(q_end_np),
