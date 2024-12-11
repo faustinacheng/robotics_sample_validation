@@ -56,7 +56,7 @@ class SampleValidationCUDA:
                 float *res;
                 float q_seg[6];
                 for (int i = idx; i < num_segs + 1; i += blockDim.x * gridDim.x) {
-                    t = (float)i / num_segs;
+                    float t = (float)i / num_segs;
                     for (int j = 0; j < num_elements; ++j) {
                         q_seg[j] = q_start[j] + t * (q_end[j] - q_start[j]);
                     }
