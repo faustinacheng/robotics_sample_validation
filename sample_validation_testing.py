@@ -37,6 +37,8 @@ with open("sample_validation_testing_output.txt", "w", newline="") as f:
                     q_start = trajectory_sample()
                     q_end = trajectory_sample()
                     valid = module.is_segment_valid(q_start, q_end)
+                    if module == cuda:
+                        print(valid)
                 end_time = time.time()
 
                 time_taken = end_time - start_time
