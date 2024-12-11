@@ -40,7 +40,7 @@ class SampleValidationCUDA:
             curand_init((unsigned long long)clock() + blockIdx.x * blockDim.x + threadIdx.x, 0, 0, &state);
 
             float x = curand_uniform(&state);
-            printf("x: %f\\n", x);
+            //printf("x: %f\\n", x);
             return x > 0.015;
         }
 
@@ -57,7 +57,7 @@ class SampleValidationCUDA:
                 for (int i = idx; i < num_segs + 1; i += blockDim.x * gridDim.x) {
                     res = step(q_start, q_end, num_elements, i * step_size, direction, steps);
                     if (!is_state_valid_cuda(res)) {
-                        printf("Invalid segment at %d\\n", idx);
+                        //printf("Invalid segment at %d\\n", idx);
                         shared_result[0] = 1;  // Mark as invalid
                         result[0] = false;
                     }
