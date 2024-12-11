@@ -30,6 +30,7 @@ with open("sample_validation_testing_output.txt", "w", newline="") as f:
             random.seed(0xDEADBEEF)
             for obstacle in current_obstacles:
                 module.current_obstacle = obstacle
+                invalids = valids = 0
 
                 start_time = time.time()
                 valid = False
@@ -39,11 +40,15 @@ with open("sample_validation_testing_output.txt", "w", newline="") as f:
                     valid = module.is_segment_valid(q_start, q_end)
                     # if module == cuda:
                     #     print(valid)
+                    if valid:
+                        valids += 1
+                    else:
+                        invalids += 1
                 end_time = time.time()
 
                 time_taken = end_time - start_time
                 print(
-                    f"Module: {module.__class__.__name__}, Obstacle: {obstacle}, Time: {time_taken:.6f} s"
+                    f"Module: {module.__class__.__name__}, Obstacle: {obstacle}, Time: {time_taken:.6f} s, Valid: {valids}, Invalid: {invalids}"
                 )
                 writer.writerow([module.__class__.__name__, obstacle, time_taken])
 
