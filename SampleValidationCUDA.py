@@ -54,8 +54,13 @@ class SampleValidationCUDA:
             __syncthreads();
             if (idx < num_segs && shared_result[0] == 0) {
                 float *res;
+                float q_seg[6];
                 for (int i = idx; i < num_segs + 1; i += blockDim.x * gridDim.x) {
-                    res = step(q_start, q_end, num_elements, i * step_size, direction, steps);
+                    t = (float)i / num_segs;
+                    for (int j = 0; j < num_elements; ++j) {
+                        q_seg[j] = q_start[j] + t * (q_end[j] - q_start[j]);
+                    }
+                    //res = step(q_start, q_end, num_elements, i * step_size, direction, steps);
                     if (!is_state_valid_cuda(res)) {
                         //printf("Invalid segment at %d\\n", idx);
                         shared_result[0] = 1;  // Mark as invalid
@@ -143,6 +148,7 @@ class SampleValidationCUDA:
         # Launch kernel
         threadsperblock = 256
         blockspergrid = (num_segs + threadsperblock - 1) // threadsperblock
+        segments_per_thread = math.ceil(num_segs / (threadsperblock * blockspergrid))
         self.validate_segment_kernel(
             cuda.In(q_start_np),
             cuda.In(q_end_np),
@@ -152,6 +158,7 @@ class SampleValidationCUDA:
             np.float32(step_size),
             np.int32(num_segs),
             np.int32(len(q_start)),
+            np.int32(segments_per_thread),
             block=(threadsperblock, 1, 1),
             grid=(blockspergrid, 1),
             shared=4,
