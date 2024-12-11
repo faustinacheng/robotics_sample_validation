@@ -27,8 +27,8 @@ with open("sample_validation_testing_output.txt", "w", newline="") as f:
     for i in range(int(sys.argv[2])):
         for module in modules:
             print("-" * 50)
-            random.seed(0xDEADBEEF)
             for obstacle in current_obstacles:
+                random.seed(time.time())
                 module.current_obstacle = obstacle
                 invalids = valids = 0
 
