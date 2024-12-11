@@ -12,15 +12,6 @@ class SampleValidationSerial:
     def is_state_valid(self, q_seg):
         return random.random() > 0.015
 
-    def step(self, q_near, q_rand, step_size=0.1):
-        direction = [qr - qn for qr, qn in zip(q_rand, q_near)]
-        length = math.sqrt(sum([d**2 for d in direction]))
-        if length == 0:
-            return q_near
-        step = [qn + (d / length) * step_size for qn, d in zip(q_near, direction)]
-        # joint limits
-        return [max(min(q, math.pi), -math.pi) for q in step]
-
     def is_segment_valid(self, q_start, q_end):
         if self.current_obstacle == "NONE":
             step_size = 0.05
@@ -34,11 +25,14 @@ class SampleValidationSerial:
             # default if not specified
             step_size = 0.05
 
-        direction = [qr - qn for qr, qn in zip(q_end, q_start)]
-        length = math.sqrt(sum([d**2 for d in direction]))
-        num_segs = int(length / step_size)
+        direction = [qe - qs for qs, qe in zip(q_start, q_end)]
+        length = math.sqrt(sum(d**2 for d in direction))
+        if length == 0:
+            return self.is_state_valid(q_start)
+
+        num_segs = max(1, int(length / step_size))
         for i in range(num_segs + 1):
-            q_seg = self.step(q_start, q_end, step_size=i * step_size)
+            q_seg = [qs + i / num_segs * (qe - qs) for qs, qe in zip(q_start, q_end)]
             if not self.is_state_valid(q_seg):
                 return False
         return True
