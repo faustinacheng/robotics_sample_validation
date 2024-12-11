@@ -77,23 +77,24 @@ class SampleValidationCUDA:
 
         q_start_np = np.array(q_start, dtype=np.float32)
         q_end_np = np.array(q_end, dtype=np.float32)
+        q_result_np = np.array([False], dtype=np.bool_)
 
         # Prepare data for GPU
-        q_start_gpu = cuda.mem_alloc(q_start_np.nbytes)
-        q_end_gpu = cuda.mem_alloc(q_end_np.nbytes)
-        result_gpu = cuda.mem_alloc(np.bool_().itemsize)
+        # q_start_gpu = cuda.mem_alloc(q_start_np.nbytes)
+        # q_end_gpu = cuda.mem_alloc(q_end_np.nbytes)
+        # result_gpu = cuda.mem_alloc(np.bool_().itemsize)
 
-        cuda.memcpy_htod(q_start_gpu, np.array(q_start, dtype=np.float32))
-        cuda.memcpy_htod(q_end_gpu, np.array(q_end, dtype=np.float32))
-        cuda.memcpy_htod(result_gpu, np.array([True], dtype=np.bool_))
+        # cuda.memcpy_htod(q_start_gpu, np.array(q_start, dtype=np.float32))
+        # cuda.memcpy_htod(q_end_gpu, np.array(q_end, dtype=np.float32))
+        # cuda.memcpy_htod(result_gpu, np.array([True], dtype=np.bool_))
 
         # Launch kernel
         threadsperblock = 256
         blockspergrid = (num_segs + threadsperblock - 1) // threadsperblock
         self.validate_segment_kernel(
-            q_start_gpu,
-            q_end_gpu,
-            result_gpu,
+            cuda.In(q_start_np),
+            cuda.In(q_end_np),
+            cuda.Out(q_result_np),
             np.float32(step_size),
             np.int32(num_segs),
             block=(threadsperblock, 1, 1),
@@ -102,13 +103,13 @@ class SampleValidationCUDA:
         )
 
         # Copy result back
-        result = np.array([True], dtype=np.bool_)
-        result[0] = False
-        cuda.memcpy_dtoh(result, result_gpu)
+        # result = np.array([True], dtype=np.bool_)
+        # result[0] = False
+        # cuda.memcpy_dtoh(result, result_gpu)
 
         # Clean up
-        q_start_gpu.free()
-        q_end_gpu.free()
-        result_gpu.free()
-
-        return result[0]
+        # q_start_gpu.free()
+        # q_end_gpu.free()
+        # result_gpu.free()
+        print(q_result_np[0])
+        return q_result_np[0]
