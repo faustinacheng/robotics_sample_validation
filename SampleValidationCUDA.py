@@ -40,7 +40,7 @@ class SampleValidationCUDA:
             }
         }
         """
-        self.mod = SourceModule(self.cuda_kernel_code)
+        self.mod = SourceModule(self.cuda_kernel_code, no_extern_c=True)
         self.validate_segment_kernel = self.mod.get_function("validate_segment")
 
     def trajectory_sample(self):
