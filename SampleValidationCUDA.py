@@ -53,7 +53,6 @@ class SampleValidationCUDA:
             }
             __syncthreads();
             if (idx < num_segs && shared_result[0] == 0) {
-                float q_seg[num_elements];
                 float *res;
                 for (int i = start_index; i < end_index; ++i) {
                     res = step(q_start, q_end, num_elements, i * step_size, direction, steps);
