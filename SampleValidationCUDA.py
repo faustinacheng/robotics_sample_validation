@@ -38,7 +38,7 @@ class SampleValidationCUDA:
                     q_seg[i] = q_start[i] + t * (q_end[i] - q_start[i]);
                 }
                 if (!is_state_valid_cuda(q_seg)) {
-                    printf("Invalid segment at %d\\n", idx);
+                    //printf("Invalid segment at %d\\n", idx);
                     shared_result[0] = 1;  // Mark as invalid
                     result[0] = false;
                 }
@@ -141,5 +141,5 @@ class SampleValidationCUDA:
         # q_start_gpu.free()
         # q_end_gpu.free()
         # result_gpu.free()
-        print(q_result_np[0])
+        # print(q_result_np[0])
         return q_result_np[0]
