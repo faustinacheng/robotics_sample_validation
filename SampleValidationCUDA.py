@@ -20,6 +20,7 @@ class SampleValidationCUDA:
             curand_init((unsigned long long)clock() + threadIdx.x, 0, 0, &state);
 
             float x = curand_uniform(&state);
+            printf("x: %f\\n", x);
             return x > 0.015;
         }
 
