@@ -51,6 +51,10 @@ class SampleValidationCUDA:
                     result[0] = false;
                 }
             }
+            __syncthreads();
+            if (threadIdx.x == 0 && shared_result[0] == 0) {
+                result[0] = true;
+            }
         }
         }
         """
