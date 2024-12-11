@@ -19,7 +19,7 @@ class SampleValidationCUDA:
             curand_init((unsigned long long)clock() + threadIdx.x, 0, 0, &state);
 
             float x = curand_uniform(&state);
-            return x <= 0.05;
+            return x > 0.015;
         }
 
         __global__ void validate_segment(float *q_start, float *q_end, float *result, float step_size, int num_segs) {
@@ -42,12 +42,6 @@ class SampleValidationCUDA:
         """
         self.mod = SourceModule(self.cuda_kernel_code)
         self.validate_segment_kernel = self.mod.get_function("validate_segment")
-
-    # q_start and q_end are an array of 6 2-tuples of floats, representing the positions of each joint
-
-    def __init__(self):
-        self.current_obstacle = "NONE"
-        # Compile the kernel
 
     def trajectory_sample(self):
         q_rand = [random.uniform(-math.pi, math.pi) for _ in range(self.num_joints)]
