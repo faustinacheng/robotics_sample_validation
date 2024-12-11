@@ -16,7 +16,7 @@ class SampleValidationCUDA:
         __global__ void validate_segment(float *q_start, float *q_end, float *result, float step_size, int num_segs) {
             extern __shared__ int shared_result;
             shared_result = 1;
-            result[0] = True;
+            result[0] = true;
         }
         """
 
