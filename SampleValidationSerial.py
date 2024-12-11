@@ -7,7 +7,7 @@ class SampleValidationSerial:
 
     def __init__(self):
         self.current_obstacle = "NONE"
-        random.Random(time.time() + 0xDEADBABA)
+        random.Random(time.time())
 
     def is_state_valid(self, q_seg):
         return random.random() > 0.015
