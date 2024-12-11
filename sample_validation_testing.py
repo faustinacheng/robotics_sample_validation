@@ -27,8 +27,13 @@ with open("sample_validation_testing_output.txt", "w", newline="") as f:
     for i in range(int(sys.argv[2])):
         for module in modules:
             print("-" * 50)
-            seed1 = random.Random(0xDEADBEEF)
-            for obstacle in current_obstacles:
+            seeds = [
+                random.Random(0xDEADBEEF),
+                random.Random(0xBEEFBEEF),
+                random.Random(0xDEADBABA),
+                random.Random(0xBEEFDADA),
+            ]
+            for o_i, obstacle in enumerate(current_obstacles):
                 module.current_obstacle = obstacle
                 invalids = valids = 0
 
@@ -36,8 +41,8 @@ with open("sample_validation_testing_output.txt", "w", newline="") as f:
                 i = 0
                 valid = False
                 while not valid:
-                    q_start = trajectory_sample(seed1)
-                    q_end = trajectory_sample(seed1)
+                    q_start = trajectory_sample(seeds[o_i])
+                    q_end = trajectory_sample(seeds[o_i])
                     if i == 0:
                         print(f"q_start: {q_start}, q_end: {q_end}")
                         i += 1
