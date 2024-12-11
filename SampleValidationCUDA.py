@@ -45,7 +45,7 @@ class SampleValidationCUDA:
         }
 
         extern "C" {
-        __global__ void validate_segment(float *q_start, float *q_end, float *direction, float *steps, bool *result, float step_size, int num_segs, int num_elements) {
+        __global__ void validate_segment(float *q_start, float *q_end, float *direction, float *steps, bool *result, float step_size, int num_segs, int num_elements, int segments_per_thread) {
             extern __shared__ int shared_result[];
             int idx = blockIdx.x * blockDim.x + threadIdx.x;
             if (threadIdx.x == 0) {
@@ -54,7 +54,7 @@ class SampleValidationCUDA:
             __syncthreads();
             if (idx < num_segs && shared_result[0] == 0) {
                 float *res;
-                for (int i = idx; i < num_segs + 1; i += blockDim.x * gridDim.x) {
+                for (int i = idx; i < num_segs + 1; i += segments_per_thread) {
                     float q_seg[6];
                     float t = (float)i / num_segs;
                     for (int j = 0; j < num_elements; ++j) {
@@ -147,7 +147,8 @@ class SampleValidationCUDA:
 
         # Launch kernel
         threadsperblock = 256
-        blockspergrid = (num_segs + threadsperblock - 1) // threadsperblock
+        # blockspergrid = (num_segs + threadsperblock - 1) // threadsperblock
+        blockspergrid = 1
         segments_per_thread = math.ceil(num_segs / (threadsperblock * blockspergrid))
         self.validate_segment_kernel(
             cuda.In(q_start_np),
