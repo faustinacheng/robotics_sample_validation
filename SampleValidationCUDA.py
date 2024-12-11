@@ -124,7 +124,7 @@ class SampleValidationCUDA:
         # cuda.memcpy_htod(result_gpu, np.array([True], dtype=np.bool_))
 
         # Launch kernel
-        threadsperblock = 1024
+        threadsperblock = 128
         # blockspergrid = (num_segs + threadsperblock - 1) // threadsperblock
         blockspergrid = 1
         segments_per_thread = math.ceil(num_segs / (threadsperblock * blockspergrid))
