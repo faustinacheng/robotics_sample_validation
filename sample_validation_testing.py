@@ -12,7 +12,7 @@ current_obstacles = ["NONE", "SIMPLE", "HARD", "SUPER"]
 multithreads = SampleValidationThreads()
 serial = SampleValidationSerial()
 # cuda = SampleValidationCUDA()
-modules = [multithreads, serial]
+modules = [serial, multithreads]
 
 
 def trajectory_sample():
@@ -25,6 +25,8 @@ with open("sample_validation_testing_output.txt", "w", newline="") as f:
     writer.writerow(["Module", "Obstacle Type", "Time Taken to Find Valid Sample (s)"])
     for i in range(int(sys.argv[2])):
         for module in modules:
+            print("-" * 50)
+            random.seed(0xDEADBEEF)
             for obstacle in current_obstacles:
                 module.current_obstacle = obstacle
 

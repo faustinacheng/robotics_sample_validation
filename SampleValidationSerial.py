@@ -10,7 +10,7 @@ class SampleValidationSerial:
         random.seed(time.time())
 
     def is_state_valid(self, q_seg):
-        return random.random() > 0.01
+        return random.random() > 0.015
 
     def step(self, q_near, q_rand, step_size=0.1):
         direction = [qr - qn for qr, qn in zip(q_rand, q_near)]

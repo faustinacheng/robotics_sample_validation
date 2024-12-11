@@ -7,11 +7,12 @@ import time
 class SampleValidationThreads:
 
     def __init__(self):
+        self.NUM_THREADS = 2
         self.current_obstacle = "NONE"
         random.seed(time.time())
 
     def is_state_valid(self, q_seg):
-        return random.random() > 0.01
+        return random.random() > 0.015
 
     def validation_worker(
         self, start_index, end_index, q_start, q_end, num_segs, stop_event
@@ -44,7 +45,7 @@ class SampleValidationThreads:
 
         num_segs = max(1, int(length / step_size))
 
-        num_threads = min(num_segs, 8)
+        num_threads = min(num_segs, self.NUM_THREADS)
         segment_per_thread = math.ceil(num_segs / num_threads)
 
         threads = []
