@@ -11,36 +11,45 @@ class SampleValidationCUDA:
     def __init__(self):
         self.current_obstacle = "NONE"
         random.seed(time.time())
+
         self.cuda_kernel_code = """
-        #include <curand_kernel.h>
-
-        __device__ bool is_state_valid_cuda(float *q_seg) {
-            curandState state;
-            curand_init((unsigned long long)clock() + threadIdx.x, 0, 0, &state);
-
-            float x = curand_uniform(&state);
-            return x > 0.015;
-        }
-
         __global__ void validate_segment(float *q_start, float *q_end, float *result, float step_size, int num_segs) {
             extern __shared__ int shared_result;
-            int idx = blockIdx.x * blockDim.x + threadIdx.x;
-            if (idx < num_segs && shared_result == 0) {
-                float t = (float)idx / (num_segs - 1);
-                float q_seg[3];
-                for (int i = 0; i < 3; ++i) {
-                    q_seg[i] = q_start[i] + t * (q_end[i] - q_start[i]);
-                }
-                // Here you would call a CUDA version of is_state_valid, which we assume exists for simplicity
-                if (!is_state_valid_cuda(q_seg)) {
-                    printf("Invalid segment at %d\\n", idx);
-                    shared_result = 1;  // Mark as invalid
-                    result[0] = 1;
-                }
-            }
+            shared_result = 1;
+            result[0] = 1;
         }
         """
-        self.mod = SourceModule(self.cuda_kernel_code, no_extern_c=True)
+
+        # self.cuda_kernel_code = """
+        # #include <curand_kernel.h>
+
+        # __device__ bool is_state_valid_cuda(float *q_seg) {
+        #     curandState state;
+        #     curand_init((unsigned long long)clock() + threadIdx.x, 0, 0, &state);
+
+        #     float x = curand_uniform(&state);
+        #     return x > 0.015;
+        # }
+
+        # __global__ void validate_segment(float *q_start, float *q_end, float *result, float step_size, int num_segs) {
+        #     extern __shared__ int shared_result;
+        #     int idx = blockIdx.x * blockDim.x + threadIdx.x;
+        #     if (idx < num_segs && shared_result == 0) {
+        #         float t = (float)idx / (num_segs - 1);
+        #         float q_seg[3];
+        #         for (int i = 0; i < 3; ++i) {
+        #             q_seg[i] = q_start[i] + t * (q_end[i] - q_start[i]);
+        #         }
+        #         // Here you would call a CUDA version of is_state_valid, which we assume exists for simplicity
+        #         if (!is_state_valid_cuda(q_seg)) {
+        #             printf("Invalid segment at %d\\n", idx);
+        #             shared_result = 1;  // Mark as invalid
+        #             result[0] = 1;
+        #         }
+        #     }
+        # }
+        # """
+        self.mod = SourceModule(self.cuda_kernel_code)
         self.validate_segment_kernel = self.mod.get_function("validate_segment")
 
     def trajectory_sample(self):
