@@ -107,7 +107,7 @@ class SampleValidationCUDA:
 
         q_start_np = np.array(q_start, dtype=np.float32)
         q_end_np = np.array(q_end, dtype=np.float32)
-        q_result_np = np.array([False], dtype=np.bool_)
+        q_result_np = np.array([True], dtype=np.bool_)
 
         # Prepare data for GPU
         # q_start_gpu = cuda.mem_alloc(q_start_np.nbytes)
