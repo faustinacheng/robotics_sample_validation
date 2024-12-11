@@ -5,14 +5,15 @@ import math
 import csv
 from SampleValidationThreads import SampleValidationThreads
 from SampleValidationSerial import SampleValidationSerial
+from SampleValidationCUDA import SampleValidationCUDA
 
 # import SampleValidationCUDA
 num_joints = int(sys.argv[1])
 current_obstacles = ["NONE", "SIMPLE", "HARD", "SUPER"]
-multithreads = SampleValidationThreads()
 serial = SampleValidationSerial()
-# cuda = SampleValidationCUDA()
-modules = [serial, multithreads]
+multithreads = SampleValidationThreads()
+cuda = SampleValidationCUDA()
+modules = [serial, multithreads, cuda]
 
 
 def trajectory_sample():
