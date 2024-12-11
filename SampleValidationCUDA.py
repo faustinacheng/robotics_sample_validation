@@ -13,7 +13,7 @@ class SampleValidationCUDA:
         random.seed(time.time())
 
         self.cuda_kernel_code = """
-        __global__ void validate_segment(float *q_start, float *q_end, float *result, float step_size, int num_segs) {
+        __global__ void validate_segment(float *q_start, float *q_end, bool *result, float step_size, int num_segs) {
             extern __shared__ int shared_result;
             shared_result = 1;
             result[0] = true;
