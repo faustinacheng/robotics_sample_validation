@@ -12,13 +12,6 @@ class SampleValidationCUDA:
         self.current_obstacle = "NONE"
         random.seed(time.time())
 
-        # self.cuda_kernel_code = """
-        # __global__ void validate_segment(float *q_start, float *q_end, bool *result, float step_size, int num_segs) {
-        #     extern __shared__ int shared_result;
-        #     shared_result = 1;
-        #     result[0] = true;
-        # }
-        # """
         self.cuda_kernel_code = """
         #include <curand_kernel.h>
 
@@ -27,7 +20,7 @@ class SampleValidationCUDA:
             curand_init((unsigned long long)clock() + threadIdx.x, 0, 0, &state);
 
             float x = curand_uniform(&state);
-            return x > 0.0015;
+            return x > 0.015;
         }
 
         extern "C" {
@@ -44,7 +37,6 @@ class SampleValidationCUDA:
                 for (int i = 0; i < 3; ++i) {
                     q_seg[i] = q_start[i] + t * (q_end[i] - q_start[i]);
                 }
-                // Here you would call a CUDA version of is_state_valid, which we assume exists for simplicity
                 if (!is_state_valid_cuda(q_seg)) {
                     printf("Invalid segment at %d\\n", idx);
                     shared_result[0] = 1;  // Mark as invalid
