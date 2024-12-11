@@ -15,26 +15,6 @@ class SampleValidationCUDA:
         self.cuda_kernel_code = """
         #include <curand_kernel.h>
 
-        __device__ float* step(float *q_near, float *q_rand, int num_elements, float step_size, float *direction, float *steps) {
-            float length = 0.0f;
-
-            for (int i = 0; i < num_elements; ++i) {
-                direction[i] = q_rand[i] - q_near[i];
-                length += direction[i] * direction[i];
-            }
-            length = sqrtf(length);
-            if (length == 0.0f) {
-                return q_near;
-            }
-
-            for (int i = 0; i < num_elements; ++i) {
-                steps[i] = q_near[i] + (direction[i] / length) * step_size;
-                steps[i] = fmaxf(fminf(steps[i], M_PI), -M_PI);
-            }
-            return steps;
-        }
-
-
         __device__ bool is_state_valid_cuda(float *q_seg) {
             curandState state;
             curand_init((unsigned long long)clock() + blockIdx.x * blockDim.x + threadIdx.x, 0, 0, &state);
@@ -53,15 +33,13 @@ class SampleValidationCUDA:
             }
             __syncthreads();
             if (idx < num_segs && shared_result[0] == 0) {
-                float *res;
                 for (int i = idx; i < num_segs + 1; i += gridDim.x * blockDim.x) {
                     float q_seg[6];
                     float t = (float)i / num_segs;
                     for (int j = 0; j < num_elements; ++j) {
                         q_seg[j] = q_start[j] + t * (q_end[j] - q_start[j]);
                     }
-                    //res = step(q_start, q_end, num_elements, i * step_size, direction, steps);
-                    if (!is_state_valid_cuda(res)) {
+                    if (!is_state_valid_cuda(q_seg)) {
                         //printf("Invalid segment at %d\\n", idx);
                         shared_result[0] = 1;  // Mark as invalid
                         result[0] = false;
