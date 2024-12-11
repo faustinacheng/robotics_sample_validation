@@ -54,7 +54,7 @@ class SampleValidationCUDA:
             __syncthreads();
             if (idx < num_segs && shared_result[0] == 0) {
                 float *res;
-                for (int i = threadIdx.x; i < num_segs + 1; i += blockDim.x) {
+                for (int i = idx; i < num_segs + 1; i += blockDim.x * gridDim.x) {
                     res = step(q_start, q_end, num_elements, i * step_size, direction, steps);
                     if (!is_state_valid_cuda(res)) {
                         //printf("Invalid segment at %d\\n", idx);
