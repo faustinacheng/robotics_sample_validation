@@ -45,7 +45,7 @@ class SampleValidationCUDA:
         }
 
         extern "C" {
-        __global__ void validate_segment(int start_index, int end_index, float *q_start, float *q_end, float *direction, float *steps, bool *result, float step_size, int num_segs, int num_elements) {
+        __global__ void validate_segment(float *q_start, float *q_end, float *direction, float *steps, bool *result, float step_size, int num_segs, int num_elements) {
             extern __shared__ int shared_result[];
             int idx = blockIdx.x * blockDim.x + threadIdx.x;
             if (threadIdx.x == 0) {
@@ -54,7 +54,7 @@ class SampleValidationCUDA:
             __syncthreads();
             if (idx < num_segs && shared_result[0] == 0) {
                 float *res;
-                for (int i = start_index; i < end_index; ++i) {
+                for (int i = threadIdx.x; i < num_segs + 1; i += blockDim.x) {
                     res = step(q_start, q_end, num_elements, i * step_size, direction, steps);
                     if (!is_state_valid_cuda(res)) {
                         //printf("Invalid segment at %d\\n", idx);
