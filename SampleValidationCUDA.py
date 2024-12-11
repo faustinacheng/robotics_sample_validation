@@ -33,7 +33,7 @@ class SampleValidationCUDA:
             }
             __syncthreads();
             if (idx < num_segs && shared_result[0] == 0) {
-                for (int i = idx; i < num_segs + 1; i += gridDim.x * blockDim.x) {
+                for (int i = idx; i < num_segs + 1; i += blockDim.x) {
                     float q_seg[6];
                     float t = (float)i / num_segs;
                     for (int j = 0; j < num_elements; ++j) {
@@ -124,9 +124,9 @@ class SampleValidationCUDA:
         # cuda.memcpy_htod(result_gpu, np.array([True], dtype=np.bool_))
 
         # Launch kernel
-        threadsperblock = 256
-        blockspergrid = (num_segs + threadsperblock - 1) // threadsperblock
-        # blockspergrid = 1
+        threadsperblock = 1024
+        # blockspergrid = (num_segs + threadsperblock - 1) // threadsperblock
+        blockspergrid = 1
         segments_per_thread = math.ceil(num_segs / (threadsperblock * blockspergrid))
         # print(f"num_segs: {num_segs}, segments_per_thread: {segments_per_thread}")
         self.validate_segment_kernel(
