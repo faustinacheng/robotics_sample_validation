@@ -23,7 +23,14 @@ def trajectory_sample(seed):
 
 with open("sample_validation_testing_output.txt", "w", newline="") as f:
     writer = csv.writer(f)
-    writer.writerow(["Module", "Obstacle Type", "Time Taken to Find Valid Sample (s)"])
+    writer.writerow(
+        [
+            "Module",
+            "Obstacle Type",
+            "Time Taken to Find Valid Sample (s)",
+            "Number of Samples Checked",
+        ]
+    )
     for i in range(int(sys.argv[2])):
         for module in modules:
             print("-" * 50)
@@ -35,31 +42,24 @@ with open("sample_validation_testing_output.txt", "w", newline="") as f:
             ]
             for o_i, obstacle in enumerate(current_obstacles):
                 module.current_obstacle = obstacle
-                invalids = valids = 0
+                num_runs = 0
 
                 start_time = time.time()
-                # i = 0
                 valid = False
                 while not valid:
                     q_start = trajectory_sample(seeds[o_i])
                     q_end = trajectory_sample(seeds[o_i])
-                    # if i == 0:
-                    #     print(f"q_start: {q_start}, q_end: {q_end}")
-                    #     i += 1
                     valid = module.is_segment_valid(q_start, q_end)
-                    # if module == cuda:
-                    #     print(valid)
-                    if valid:
-                        valids += 1
-                    else:
-                        invalids += 1
+                    num_runs += 1
                 end_time = time.time()
 
                 time_taken = end_time - start_time
                 print(
-                    f"Module: {module.__class__.__name__}, Obstacle: {obstacle}, Time: {time_taken:.6f} s, Valid: {valids}, Invalid: {invalids}"
+                    f"Module: {module.__class__.__name__}, Obstacle: {obstacle}, Time: {time_taken:.6f} s, Num Runs: {num_runs}"
                 )
-                writer.writerow([module.__class__.__name__, obstacle, time_taken])
+                writer.writerow(
+                    [module.__class__.__name__, obstacle, time_taken, num_runs]
+                )
 
 
 # class RRT:
